@@ -11,6 +11,9 @@ return [
 
     'details_template_id' => '__ID__',
 
+    // the page the team details live under, used for the urls and the xml sitemap
+    'baseUrl' => 'team',
+
     'content' => true,
 
     'title2' => true,

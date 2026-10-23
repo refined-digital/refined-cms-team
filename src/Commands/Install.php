@@ -43,6 +43,8 @@ class Install extends Command
         $this->migrate();
         $this->seed();
         $this->publish();
+        $this->copyDefaults();
+        $this->installContentBlock();
         $this->info('Team has been successfully installed');
     }
 
@@ -84,6 +86,74 @@ class Install extends Command
             $replace = [ $template->id ];
             file_put_contents($configFile, str_replace($search, $replace, $file));
         }
+    }
+
+    private function copyDefaults()
+    {
+        $this->output->writeln('<info>Copying Templates</info>');
+        $this->copy('views/templates');
+        $this->copy('css/components');
+    }
+
+    private function copy($assetDir)
+    {
+        $dir = __DIR__.'/defaults/'.$assetDir.'/';
+
+        if (!is_dir(resource_path($assetDir))) {
+            mkdir(resource_path($assetDir), 0755, true);
+        }
+
+        foreach (array_diff(scandir($dir), ['.', '..']) as $template) {
+            if (!is_file($dir.$template)) {
+                continue;
+            }
+
+            // never overwrite a file the site has already customised
+            if (is_file(resource_path($assetDir.'/'.$template))) {
+                $this->output->writeln(' <comment>Skipping '.$template.', it already exists</comment>');
+                continue;
+            }
+
+            $this->output->writeln(' <info>Copying '.$template.'</info>');
+            copy($dir.$template, resource_path($assetDir.'/'.$template));
+        }
+    }
+
+    private function installContentBlock()
+    {
+        $this->output->writeln('<info>Installing the Team Listing content block</info>');
+
+        $to = app_path('RefinedCMS/Content/Blocks/TeamListing');
+        if (!is_dir($to)) {
+            \File::copyDirectory(__DIR__.'/defaults/app/RefinedCMS/Blocks/TeamListing', $to);
+        }
+
+        $appFile = app_path('RefinedCMS/Content/Providers/ContentServiceProvider.php');
+
+        if (!is_file($appFile)) {
+            $this->output->writeln('<error>Could not find '.$appFile.' - register TeamListing::class manually</error>');
+            return;
+        }
+
+        $appData = file_get_contents($appFile);
+
+        if (str_contains($appData, 'TeamListing::class')) {
+            return;
+        }
+
+        $appData = str_replace(
+            [
+                '// register the content fields',
+                'use Illuminate\Support\ServiceProvider;',
+            ],
+            [
+                '// register the content fields'."\n\t\t".'$agg->register(TeamListing::class);',
+                'use App\\RefinedCMS\\Content\\Blocks\\TeamListing\\TeamListing;'."\nuse Illuminate\\Support\\ServiceProvider;",
+            ],
+            $appData
+        );
+
+        file_put_contents($appFile, $appData);
     }
 
 }

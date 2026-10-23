@@ -2,6 +2,7 @@
   "name": "refineddigital/cms-team",
   "description": "Team Module for RefinedCMS",
   "require": {
+    "php": "^8.2",
     "refineddigital/cms": "^1.10|dev-master"
   },
   "license": "MIT",

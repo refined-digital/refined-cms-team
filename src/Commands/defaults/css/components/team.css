@@ -1,0 +1,48 @@
+.team {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 2rem;
+}
+
+.team__item a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.team__image {
+  margin: 0 0 1rem;
+
+  & img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.team__name {
+  margin: 0;
+}
+
+.team__title {
+  margin: 0.25rem 0 0;
+  font-weight: normal;
+}
+
+.team-details__image {
+  margin: 0 0 2rem;
+  max-width: 400px;
+
+  & img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.team-details__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
